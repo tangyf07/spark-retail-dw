@@ -89,7 +89,7 @@ SQL 在 `sql/dwd.sql`、`sql/dws.sql`、`sql/ads.sql`，`jobs/pipeline.py` 按�
 3. 枚举：`gender`、`channel`、`status`
 4. 范围：`pay_amount/unit_price/amount >= 0`，`qty > 0`
 5. 外键：订单用户必须在用户表；明细订单必须在订单表
-6. 金额勾稉：已支付订单 `pay_amount` 必须等于明细 `amount` 之和（误差 0.01）
+6. 金额勾稽：已支付订单 `pay_amount` 必须等于明细 `amount` 之和（误差 0.01）
 
 演示失败：把 `data/ods/orders.csv` 某行 `pay_amount` 改成负数再跑，应看到 `QUALITY FAIL` 且不写 ADS。
 
@@ -108,7 +108,7 @@ rate(D)        = repurchase(D) / buyers(D)
 - **已支付**：`status ∈ {paid, shipped, completed}`；`unpaid/cancelled` 不进 GMV、不进复购。
 - **同一天多单不算复购**（间隔必须跨日）。这是常见零售口径，避免「拆单」抬高复购。
 - **不完整窗口**：样本最大日为 `max_dt`，若 `D+7 > max_dt` 则 `window_complete=0`。总览 KPI 只用完整窗口做加权：`sum(repurchase_users) / sum(buyers)`。
-- **GMV**：已支付订单 `pay_amount` 之和（与明细勾稉过）。
+- **GMV**：已支付订单 `pay_amount` 之和（与明细勾稽过）。
 
 总览字段见 `warehouse/ads/ads_kpi_overview.csv`：`paid_orders`、`paid_users`、`gmv_total`、`repurchase_rate_7d_weighted`。
 
