@@ -1,0 +1,12 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+warehouse/
+spark-warehouse/
+metastore_db/
+derby.log
+.idea/
+.vscode/
+*.log
+.python-version
