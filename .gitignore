@@ -10,3 +10,5 @@ derby.log
 .vscode/
 *.log
 .python-version
+
+tools/hadoop/

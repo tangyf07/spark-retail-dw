@@ -69,14 +69,31 @@ def load_ods(spark: SparkSession):
 
 
 def save_parquet(df, rel: str) -> None:
+    """Write a small local table.
+
+    Spark parquet on Windows needs Hadoop winutils + native IO (hadoop.dll).
+    This demo is tiny, so Windows (and any Hadoop local-FS failure) falls back
+    to a CSV part file via collect() — the same path ADS KPI already uses.
+    """
     path = WAREHOUSE / rel
-    df.write.mode("overwrite").parquet(str(path))
-    print(f"[write] parquet {path}")
+    if os.name != "nt":
+        try:
+            df.write.mode("overwrite").parquet(str(path))
+            print(f"[write] parquet {path}")
+            return
+        except Exception as e:
+            print(f"[write] parquet failed ({e.__class__.__name__}); csv fallback")
+    path.mkdir(parents=True, exist_ok=True)
+    _write_csv_rows(df, path / "part-00000.csv")
 
 
 def save_csv(df, rel: str) -> None:
     path = WAREHOUSE / rel
     path.parent.mkdir(parents=True, exist_ok=True)
+    _write_csv_rows(df, path)
+
+
+def _write_csv_rows(df, path: Path) -> None:
     rows = df.collect()
     fields = df.columns
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -113,14 +130,15 @@ def main() -> int:
         ads_day = spark.table("ads_repurchase_7d").orderBy("dt")
         ads_kpi = spark.table("ads_kpi_overview")
 
+        # ADS CSV is the interview artifact; write it before optional parquet.
+        save_csv(ads_kpi, "ads/ads_kpi_overview.csv")
+        save_csv(ads_day, "ads/ads_repurchase_7d.csv")
         save_parquet(dwd_user, "dwd/dim_user")
         save_parquet(dwd_order, "dwd/fact_order")
         save_parquet(dwd_item, "dwd/fact_order_item")
         save_parquet(dws_user, "dws/user_order_1d")
         save_parquet(dws_cat, "dws/category_gmv_1d")
         save_parquet(ads_day, "ads/repurchase_7d")
-        save_csv(ads_day, "ads/ads_repurchase_7d.csv")
-        save_csv(ads_kpi, "ads/ads_kpi_overview.csv")
 
         print("\n=== ADS kpi overview ===")
         ads_kpi.show(truncate=False)

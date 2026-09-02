@@ -15,6 +15,7 @@
 
 - Python 3.9+
 - JDK 17+（`java -version` 能跑；PySpark 需要）
+- Windows：Spark 写 parquet 需要 Hadoop winutils + native IO。本 Demo 在 Windows 上把 DWD/DWS 落成 CSV part 文件，ADS KPI 始终用 Python 写出，clone 即可跑通。
 - 内存 4GB 足够（local 小样本）
 - 首次 `pip install pyspark` 会下载 Spark（约 400MB），之后跑 pipeline 约 1–2 分钟
 
